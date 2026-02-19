@@ -1,0 +1,10 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"godotTools.editorPath.godot4": "/home/glider/Downloads/Godot/Godot_v4.5-stable_linux.x86_64"
+	}
+}
