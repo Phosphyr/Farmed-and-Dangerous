@@ -5,12 +5,17 @@ extends Node2D
 @onready var art_rect: TextureRect = $UI/seedbox/HBoxContainer/VBoxContainer/art
 @onready var amount_label: RichTextLabel = $UI/seedbox/HBoxContainer/VBoxContainer/amount
 
+const VALID_HIGHLIGHT_COLOR := Color(0.25, 0.9, 0.35, 0.35)
+const INVALID_HIGHLIGHT_COLOR := Color(0.95, 0.2, 0.2, 0.35)
+
 var dragging_seed := false
 var drag_preview: TextureRect
+var placement_highlight: Polygon2D
 var occupied_cells := {} # Dictionary[Vector2i, bool]
 
 func _ready() -> void:
 	_setup_seedbox_entry()
+	_setup_placement_highlight()
 	art_rect.gui_input.connect(_on_seed_art_gui_input)
 
 func _setup_seedbox_entry() -> void:
@@ -39,6 +44,7 @@ func _input(event: InputEvent) -> void:
 
 	if event is InputEventMouseMotion:
 		_update_drag_preview()
+		_update_placement_highlight()
 
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and not event.pressed:
 		var mouse_world := get_global_mouse_position()
@@ -56,6 +62,7 @@ func _begin_seed_drag() -> void:
 	drag_preview.size = Vector2(48, 48)
 	$UI.add_child(drag_preview)
 	_update_drag_preview()
+	_update_placement_highlight()
 
 func _update_drag_preview() -> void:
 	var m := get_viewport().get_mouse_position()
@@ -66,6 +73,7 @@ func _end_seed_drag() -> void:
 	if is_instance_valid(drag_preview):
 		drag_preview.queue_free()
 	drag_preview = null
+	_clear_placement_highlight()
 
 func _can_place(cell: Vector2i) -> bool:
 	if hex_map.get_cell_source_id(cell) == -1:
@@ -79,3 +87,50 @@ func _place_plant(cell: Vector2i) -> void:
 	occupied_cells[cell] = true
 	gamestate.plantamount -= 1
 	amount_label.text = "x" + str(gamestate.plantamount)
+
+func _setup_placement_highlight() -> void:
+	placement_highlight = Polygon2D.new()
+	placement_highlight.polygon = _build_hex_polygon()
+	placement_highlight.visible = false
+	placement_highlight.z_index = 100
+	hex_map.add_child(placement_highlight)
+
+func _build_hex_polygon() -> PackedVector2Array:
+	var tile_size := Vector2(hex_map.tile_set.tile_size)
+	var half_w := tile_size.x * 0.5
+	var half_h := tile_size.y * 0.5
+
+	if hex_map.tile_set.tile_offset_axis == TileSet.TILE_OFFSET_AXIS_HORIZONTAL:
+		return PackedVector2Array([
+			Vector2(0, -half_h),
+			Vector2(half_w * 0.5, -half_h * 0.5),
+			Vector2(half_w * 0.5, half_h * 0.5),
+			Vector2(0, half_h),
+			Vector2(-half_w * 0.5, half_h * 0.5),
+			Vector2(-half_w * 0.5, -half_h * 0.5),
+		])
+
+	return PackedVector2Array([
+		Vector2(-half_w, 0),
+		Vector2(-half_w * 0.5, -half_h),
+		Vector2(half_w * 0.5, -half_h),
+		Vector2(half_w, 0),
+		Vector2(half_w * 0.5, half_h),
+		Vector2(-half_w * 0.5, half_h),
+	])
+
+func _update_placement_highlight() -> void:
+	if not is_instance_valid(placement_highlight):
+		return
+
+	var mouse_world := get_global_mouse_position()
+	var cell := hex_map.local_to_map(hex_map.to_local(mouse_world))
+	var can_place := _can_place(cell)
+
+	placement_highlight.visible = true
+	placement_highlight.position = hex_map.map_to_local(cell)
+	placement_highlight.color = VALID_HIGHLIGHT_COLOR if can_place else INVALID_HIGHLIGHT_COLOR
+
+func _clear_placement_highlight() -> void:
+	if is_instance_valid(placement_highlight):
+		placement_highlight.visible = false
