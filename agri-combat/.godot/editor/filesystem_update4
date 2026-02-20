@@ -1,3 +1,4 @@
-res://battle.tscn
+res://player.tscn
 res://basetiles.tres
-res://battle.gd
+res://player_script.gd
+res://farm.tscn
