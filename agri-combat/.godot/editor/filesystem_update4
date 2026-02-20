@@ -1,4 +1,2 @@
-res://player.tscn
-res://basetiles.tres
-res://player_script.gd
 res://farm.tscn
+res://basetiles.tres
