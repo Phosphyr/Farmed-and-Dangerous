@@ -1,11 +1,11 @@
 extends CharacterBody2D
 
-var character_speed := 150.0
+var character_speed := 120.0
 var character_direction : Vector2
 
 @onready var animated_sprite_2d: AnimatedSprite2D = $AnimatedSprite2D
 
-func _physics_process(delta: float) -> void:
+func _physics_process(_delta: float) -> void:
 
 	character_direction.x = Input.get_axis("walk_left", "walk_right")
 	character_direction.y = Input.get_axis("walk_up", "walk_down")
