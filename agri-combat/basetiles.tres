@@ -1,4 +1,4 @@
-[gd_resource type="TileSet" load_steps=47 format=3 uid="uid://cw8kdwb75k1hs"]
+[gd_resource type="TileSet" format=3 uid="uid://cw8kdwb75k1hs"]
 
 [ext_resource type="Texture2D" uid="uid://d41ymn14wclm" path="res://Assets/Hex Tiles/Dirt.png" id="1_4oprq"]
 [ext_resource type="Texture2D" uid="uid://cute5u0jvpn4y" path="res://Assets/Hex Tiles/Dirt_Pumpkins.png" id="2_3onci"]
