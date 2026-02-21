@@ -4,15 +4,15 @@
 [ext_resource type="Texture2D" uid="uid://dgk0faeqvuh2v" path="res://Assets/stardew_farm_assets/character/character_walking.png" id="2_i3pqv"]
 [ext_resource type="Script" uid="uid://umo3irdrnnk2" path="res://player_script.gd" id="3_i3pqv"]
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_hqtel"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_i3pqv"]
 atlas = ExtResource("1_onrkg")
 region = Rect2(128, 0, 64, 64)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_sweqy"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_hqtel"]
 atlas = ExtResource("1_onrkg")
 region = Rect2(128, 64, 64, 64)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_2hs0m"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_sweqy"]
 atlas = ExtResource("1_onrkg")
 region = Rect2(128, 128, 64, 64)
 
@@ -120,13 +120,13 @@ region = Rect2(0, 192, 64, 64)
 animations = [{
 "frames": [{
 "duration": 10.0,
+"texture": SubResource("AtlasTexture_i3pqv")
+}, {
+"duration": 1.0,
 "texture": SubResource("AtlasTexture_hqtel")
 }, {
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_sweqy")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_2hs0m")
 }],
 "loop": true,
 "name": &"idle_down",
@@ -253,7 +253,7 @@ script = ExtResource("3_i3pqv")
 sprite_frames = SubResource("SpriteFrames_efrwb")
 animation = &"idle_down"
 autoplay = "idle_down"
-frame_progress = 0.54771423
+frame_progress = 0.37808535
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1161577382]
 position = Vector2(0.5, 15)
