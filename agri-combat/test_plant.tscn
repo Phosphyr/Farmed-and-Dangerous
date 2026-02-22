@@ -1,4 +1,4 @@
-[gd_scene load_steps=5 format=3 uid="uid://c5th2nhmmi0s8"]
+[gd_scene format=3 uid="uid://c5th2nhmmi0s8"]
 
 [ext_resource type="Texture2D" uid="uid://dkeh7d22pa17u" path="res://Assets/SnoopethDuckDuck Crops/1px All.png" id="1_igjqg"]
 [ext_resource type="Script" uid="uid://dqqp3b8e0uqhd" path="res://test_plant.gd" id="1_kssrb"]
@@ -10,8 +10,8 @@ region = Rect2(6, 6, 17, 16)
 [sub_resource type="AtlasTexture" id="AtlasTexture_2vsmu"]
 atlas = SubResource("AtlasTexture_kssrb")
 
-[node name="TestPlant" type="Node2D"]
+[node name="TestPlant" type="Node2D" unique_id=2146189071]
 script = ExtResource("1_kssrb")
 
-[node name="Sprite2D" type="Sprite2D" parent="."]
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=162691501]
 texture = SubResource("AtlasTexture_2vsmu")

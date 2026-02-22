@@ -66,22 +66,47 @@ color = Color(0.5288491, 0.31775767, 0.08518649, 1)
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
-offset_left = -200.0
-offset_right = 200.0
-offset_bottom = 100.0
+offset_left = -100.0
+offset_right = 100.0
+offset_bottom = 50.0
 grow_horizontal = 2
 
 [node name="ColorRect" type="ColorRect" parent="UI/turn_counter" unique_id=50752684]
-custom_minimum_size = Vector2(400, 100)
+custom_minimum_size = Vector2(200, 50)
 layout_mode = 2
 color = Color(0.5288491, 0.31775767, 0.08518649, 1)
 
-[node name="RichTextLabel" type="RichTextLabel" parent="UI/turn_counter" unique_id=306037766]
+[node name="turncounter" type="RichTextLabel" parent="UI/turn_counter" unique_id=306037766]
+visible = false
 custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
-text = "TURN 1"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="startbutton" type="Button" parent="UI/turn_counter" unique_id=2102607397]
+layout_mode = 2
+text = "START!"
+
+[node name="end_turn" type="MarginContainer" parent="UI" unique_id=238921493]
+visible = false
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -200.0
+offset_top = -50.0
+grow_horizontal = 0
+grow_vertical = 0
+
+[node name="ColorRect" type="ColorRect" parent="UI/end_turn" unique_id=31689136]
+custom_minimum_size = Vector2(200, 50)
+layout_mode = 2
+color = Color(0.5288491, 0.31775767, 0.08518649, 1)
+
+[node name="endturn_button" type="Button" parent="UI/end_turn" unique_id=426074474]
+layout_mode = 2
+text = "End Turn"
 
 [node name="battle_camera" parent="." unique_id=1122517091 instance=ExtResource("3_7sfm4")]
 position = Vector2(575, 405)
@@ -90,3 +115,6 @@ limit_left = 172
 limit_top = 161
 limit_right = 1007
 limit_bottom = 623
+
+[connection signal="pressed" from="UI/turn_counter/startbutton" to="." method="_on_start_pressed"]
+[connection signal="pressed" from="UI/end_turn/endturn_button" to="." method="_on_endturn_button_pressed"]

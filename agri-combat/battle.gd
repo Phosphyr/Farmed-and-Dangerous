@@ -1,36 +1,61 @@
 extends Node2D
 
-@export var plant_scene: PackedScene = preload("res://test_plant.tscn")
+#prepping the plant scene for the battle. This will get unwieldy down the track and need a more elegan solution
+@export var plant_scene: PackedScene = preload("res://test_plant.tscn") 
+
+#setting nodes with easier to write names for use in code
 @onready var hex_map: TileMapLayer = $TileMapLayer
+@onready var units_root: Node2D = $units
 @onready var art_rect: TextureRect = $UI/seedbox/HBoxContainer/VBoxContainer/art
 @onready var amount_label: RichTextLabel = $UI/seedbox/HBoxContainer/VBoxContainer/amount
 
+#setting colors for tile highlighting. Works via overlaying a color on the hex.
 const VALID_HIGHLIGHT_COLOR := Color(0.25, 0.9, 0.35, 0.35)
 const INVALID_HIGHLIGHT_COLOR := Color(0.95, 0.2, 0.2, 0.35)
+const AREA_HIGHLIGHT_COLOR := Color(0.177, 0.526, 0.784, 0.35)
+#areas for initial placement of player pieces are 17-19x, 13-20y
+const START_AREA_MIN_X := 17
+const START_AREA_MAX_X := 19
+const START_AREA_MIN_Y := 13
+const START_AREA_MAX_Y := 20
 
 var dragging_seed := false
 var drag_preview: TextureRect
 var placement_highlight: Polygon2D
-var occupied_cells := {} # Dictionary[Vector2i, bool]
+var start_area_highlights: Node2D
+var movement_highlights: Node2D
+var occupied_cells := {} # Dictionary[Vector2i, Node2D]
+var reachable_move_cells := {} # Dictionary[Vector2i, int]
+var selected_unit: Node2D
+var battle_started = false
+var turn_counter = 1
 
 func _ready() -> void:
 	_setup_seedbox_entry()
+	_setup_start_area_highlights()
 	_setup_placement_highlight()
+	_setup_movement_highlights()
 	art_rect.gui_input.connect(_on_seed_art_gui_input)
 
+#this function prepares the seedbox so the player can drag plants onto the battle scene. 
+#once we set up a plant dictionary or something similar we will need to pull from that when populating.
 func _setup_seedbox_entry() -> void:
 	if plant_scene == null:
 		return
 
+	#loads in plant scenes for use in the battle. We'll need to look at making the plant scene as modular as possible for the various combinations of plants
 	var plant_preview := plant_scene.instantiate()
 	var plant_sprite := plant_preview.get_node_or_null("Sprite2D") as Sprite2D
+	
+	#not null is defensive coding so that a game doesn't just crash out if a sprite is missing, you'll see this a bit
 	if plant_sprite != null:
 		art_rect.texture = plant_sprite.texture
 		art_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-
+	#cleans the preview after the texture is read so that we don't end up keeping a bunch of logic running for what is functionally just supposed to be an image
 	plant_preview.queue_free()
 	amount_label.text = "x" + str(gamestate.plantamount)
 
+#this fires when the player clicks a seed. it tracks if the plant is dragged and then fires the seed drag func.
 func _on_seed_art_gui_input(event: InputEvent) -> void:
 	print("gui input triggered")
 	if plant_scene == null or gamestate.plantamount <= 0:
@@ -39,19 +64,39 @@ func _on_seed_art_gui_input(event: InputEvent) -> void:
 		_begin_seed_drag()
 
 func _input(event: InputEvent) -> void:
-	if not dragging_seed:
+#splits inputs based on whether the battle has started or not. Probably a cleaner way to do this but fine for now.
+	if battle_started == false:
+		#returns function if a plant isn't in the players hand
+		if not dragging_seed:
+			return
+		#
+		if event is InputEventMouseMotion:
+			_update_drag_preview()
+			_update_placement_highlight()
+		#this is the logic that tells the game where the player has dropped the hex, runs the function to check if the placement is valid and if true, places the plant
+		if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and not event.pressed:
+			var mouse_world := get_global_mouse_position()
+			var cell := hex_map.local_to_map(hex_map.to_local(mouse_world))
+			if _can_place(cell):
+				_place_plant(cell)
+			_end_seed_drag()
 		return
 
-	if event is InputEventMouseMotion:
-		_update_drag_preview()
-		_update_placement_highlight()
-
-	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and not event.pressed:
+	#this is where the battle interaction logic will go
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
 		var mouse_world := get_global_mouse_position()
-		var cell := hex_map.local_to_map(hex_map.to_local(mouse_world))
-		if _can_place(cell):
-			_place_plant(cell)
-		_end_seed_drag()
+		var clicked_cell := hex_map.local_to_map(hex_map.to_local(mouse_world))
+		var clicked_unit: Node2D = occupied_cells.get(clicked_cell)
+
+		if is_instance_valid(selected_unit) and reachable_move_cells.has(clicked_cell):
+			move_unit(clicked_cell)
+			return
+
+		if is_instance_valid(clicked_unit):
+			show_movement(clicked_unit)
+		else:
+			selected_unit = null
+			_clear_movement_highlights()
 
 func _begin_seed_drag() -> void:
 	dragging_seed = true
@@ -61,9 +106,11 @@ func _begin_seed_drag() -> void:
 	drag_preview.custom_minimum_size = Vector2(48, 48)
 	drag_preview.size = Vector2(48, 48)
 	$UI.add_child(drag_preview)
+	_set_start_area_highlight_visible(true)
 	_update_drag_preview()
 	_update_placement_highlight()
 
+#drags the preview of the plant along with the mouse.
 func _update_drag_preview() -> void:
 	var m := get_viewport().get_mouse_position()
 	drag_preview.global_position = m - drag_preview.size * 0.5
@@ -73,18 +120,35 @@ func _end_seed_drag() -> void:
 	if is_instance_valid(drag_preview):
 		drag_preview.queue_free()
 	drag_preview = null
+	_set_start_area_highlight_visible(false)
 	_clear_placement_highlight()
 
+#checks if the cell is valid for placement, currently only checks if there is a terrain cell placed
 func _can_place(cell: Vector2i) -> bool:
+	if not _is_in_start_area(cell):
+		return false
 	if hex_map.get_cell_source_id(cell) == -1:
 		return false
 	return not occupied_cells.has(cell)
 
+#checks if cell is within start area, hard coded up top in variables for now
+func _is_in_start_area(cell: Vector2i) -> bool:
+	return (
+		cell.x >= START_AREA_MIN_X
+		and cell.x <= START_AREA_MAX_X
+		and cell.y >= START_AREA_MIN_Y
+		and cell.y <= START_AREA_MAX_Y
+	)
+
 func _place_plant(cell: Vector2i) -> void:
 	var plant := plant_scene.instantiate() as Node2D
 	plant.global_position = hex_map.to_global(hex_map.map_to_local(cell))
-	add_child(plant)
-	occupied_cells[cell] = true
+	units_root.add_child(plant)
+
+	if plant.has_method("initialize_for_battle"):
+		plant.call("initialize_for_battle", cell)
+
+	occupied_cells[cell] = plant
 	gamestate.plantamount -= 1
 	amount_label.text = "x" + str(gamestate.plantamount)
 
@@ -94,6 +158,119 @@ func _setup_placement_highlight() -> void:
 	placement_highlight.visible = false
 	placement_highlight.z_index = 100
 	hex_map.add_child(placement_highlight)
+
+func show_movement(unit: Node2D) -> void:
+	if not is_instance_valid(unit):
+		return
+
+	selected_unit = unit
+	_clear_movement_highlights()
+
+	var start_cell: Vector2i = unit.grid_cell
+	var movement_points = max(int(unit.moves_left), 0)
+	if movement_points <= 0:
+		return
+
+	var visited_distance := {start_cell: 0} # Dictionary[Vector2i, int]
+	var frontier: Array[Vector2i] = [start_cell]
+
+	while not frontier.is_empty():
+		var current_cell = frontier.pop_front()
+		var current_distance: int = visited_distance[current_cell]
+		if current_distance >= movement_points:
+			continue
+
+		for neighbor in _get_neighbor_cells(current_cell):
+			if visited_distance.has(neighbor):
+				continue
+			if not _can_move_through_cell(neighbor, start_cell):
+				continue
+
+			visited_distance[neighbor] = current_distance + 1
+			frontier.append(neighbor)
+
+	var hex_polygon := _build_hex_polygon()
+	for cell in visited_distance.keys():
+		if cell == start_cell:
+			continue
+
+		reachable_move_cells[cell] = visited_distance[cell]
+		var move_highlight := Polygon2D.new()
+		move_highlight.polygon = hex_polygon
+		move_highlight.position = hex_map.map_to_local(cell)
+		move_highlight.color = AREA_HIGHLIGHT_COLOR
+		movement_highlights.add_child(move_highlight)
+
+func move_unit(cell: Vector2i) -> void:
+	if not is_instance_valid(selected_unit):
+		return
+	if not reachable_move_cells.has(cell):
+		return
+
+	var move_cost: int = int(reachable_move_cells[cell])
+	if move_cost <= 0:
+		return
+	if move_cost > int(selected_unit.moves_left):
+		return
+
+	var from_cell: Vector2i = selected_unit.grid_cell
+	occupied_cells.erase(from_cell)
+	occupied_cells[cell] = selected_unit
+
+	selected_unit.grid_cell = cell
+	selected_unit.global_position = hex_map.to_global(hex_map.map_to_local(cell))
+	selected_unit.moves_left = max(int(selected_unit.moves_left) - move_cost, 0)
+
+	if int(selected_unit.moves_left) > 0:
+		show_movement(selected_unit)
+	else:
+		_clear_movement_highlights()
+
+func _setup_movement_highlights() -> void:
+	movement_highlights = Node2D.new()
+	movement_highlights.z_index = 80
+	hex_map.add_child(movement_highlights)
+
+func _clear_movement_highlights() -> void:
+	reachable_move_cells.clear()
+	if not is_instance_valid(movement_highlights):
+		return
+
+	for child in movement_highlights.get_children():
+		child.queue_free()
+
+func _get_neighbor_cells(cell: Vector2i) -> Array[Vector2i]:
+	return hex_map.get_surrounding_cells(cell)
+
+func _can_move_through_cell(cell: Vector2i, start_cell: Vector2i) -> bool:
+	if hex_map.get_cell_source_id(cell) == -1:
+		return false
+	if cell != start_cell and occupied_cells.has(cell):
+		return false
+	return true
+
+func _setup_start_area_highlights() -> void:
+	start_area_highlights = Node2D.new()
+	start_area_highlights.visible = false
+	start_area_highlights.z_index = 90
+	hex_map.add_child(start_area_highlights)
+
+	var hex_polygon := _build_hex_polygon()
+	for x in range(START_AREA_MIN_X, START_AREA_MAX_X + 1):
+		for y in range(START_AREA_MIN_Y, START_AREA_MAX_Y + 1):
+			var cell := Vector2i(x, y)
+			if hex_map.get_cell_source_id(cell) == -1:
+				continue
+
+			var start_cell_highlight := Polygon2D.new()
+			start_cell_highlight.polygon = hex_polygon
+			start_cell_highlight.position = hex_map.map_to_local(cell)
+			start_cell_highlight.color = AREA_HIGHLIGHT_COLOR
+			start_area_highlights.add_child(start_cell_highlight)
+
+func _set_start_area_highlight_visible(is_visible: bool) -> void:
+	if is_instance_valid(start_area_highlights):
+		start_area_highlights.visible = is_visible
 
 func _build_hex_polygon() -> PackedVector2Array:
 	var tile_size := Vector2(hex_map.tile_set.tile_size)
@@ -134,3 +311,23 @@ func _update_placement_highlight() -> void:
 func _clear_placement_highlight() -> void:
 	if is_instance_valid(placement_highlight):
 		placement_highlight.visible = false
+
+
+func _on_start_pressed() -> void:
+	$UI/turn_counter/startbutton.visible = false
+	$UI/turn_counter/turncounter.visible = true
+	$UI/seedbox.visible = false
+	$UI/end_turn.visible = true
+	battle_started = true
+	$UI/turn_counter/turncounter.text = "Turn " + str(turn_counter)
+
+
+func _on_endturn_button_pressed() -> void:
+	selected_unit = null
+	_clear_movement_highlights()
+
+	for unit in units_root.get_children():
+		if unit.has_method("begin_turn"):
+			unit.call("begin_turn")
+	turn_counter += 1
+	$UI/turn_counter/turncounter.text = "Turn " + str(turn_counter)
