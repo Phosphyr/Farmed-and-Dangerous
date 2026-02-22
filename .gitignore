@@ -4,6 +4,7 @@
 ### Godot ###
 # Godot 4+ specific ignores
 .godot/
+agri-combat/.godot
 
 # Godot-specific ignores
 .import/
