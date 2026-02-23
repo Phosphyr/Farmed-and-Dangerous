@@ -1,0 +1,5 @@
+*.cfg
+*.import
+*.md5
+/agri-combat/.godot
+/agri-combat/.git
