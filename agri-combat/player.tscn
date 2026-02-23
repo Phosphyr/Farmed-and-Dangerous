@@ -1,4 +1,5 @@
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 [gd_scene format=3 uid="uid://rnvog0djp5y5"]
 
 [ext_resource type="Script" uid="uid://571wl5nkh3q" path="res://player.gd" id="1_2hs0m"]
@@ -8,6 +9,8 @@
 [ext_resource type="Script" uid="uid://clhpv0bymhvp6" path="res://player/idle_state.gd" id="4_sweqy"]
 [ext_resource type="Script" uid="uid://cpdp8w33ldfb" path="res://player/walk_state.gd" id="5_sweqy"]
 =======
+=======
+>>>>>>> Stashed changes
 [gd_scene format=3 uid="uid://b0gihdny8c1ds"]
 
 [ext_resource type="Script" path="res://player.gd" id="1_2hs0m"]
@@ -16,6 +19,9 @@
 [ext_resource type="Script" path="res://scripts/state_machine/node_state_machine.gd" id="3_hqtel"]
 [ext_resource type="Script" path="res://player/idle_state.gd" id="4_sweqy"]
 [ext_resource type="Script" path="res://player/walk_state.gd" id="5_sweqy"]
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_bfour"]
@@ -410,7 +416,11 @@ y_sort_enabled = true
 position = Vector2(0, -26)
 sprite_frames = SubResource("SpriteFrames_efrwb")
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 animation = &"walk_right"
+=======
+animation = &"idle_down"
+>>>>>>> Stashed changes
 =======
 animation = &"idle_down"
 >>>>>>> Stashed changes
