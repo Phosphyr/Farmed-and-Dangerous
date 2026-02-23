@@ -13,11 +13,17 @@ extends Node2D
 const VALID_HIGHLIGHT_COLOR := Color(0.25, 0.9, 0.35, 0.35)
 const INVALID_HIGHLIGHT_COLOR := Color(0.95, 0.2, 0.2, 0.35)
 const AREA_HIGHLIGHT_COLOR := Color(0.177, 0.526, 0.784, 0.35)
+const ENEMY_AREA_HIGHLIGHT_COLOR := Color(0.733, 0.741, 0.161, 0.565)
 #areas for initial placement of player pieces are 17-19x, 13-20y
 const START_AREA_MIN_X := 17
 const START_AREA_MAX_X := 19
 const START_AREA_MIN_Y := 13
 const START_AREA_MAX_Y := 20
+
+const ENEMY_AREA_MIN_X := 31
+const ENEMY_AREA_MAX_X := 33
+const ENEMY_AREA_MIN_Y := 13
+const ENEMY_AREA_MAX_Y := 20
 
 var dragging_seed := false
 var drag_preview: TextureRect
@@ -266,6 +272,19 @@ func _setup_start_area_highlights() -> void:
 			start_cell_highlight.polygon = hex_polygon
 			start_cell_highlight.position = hex_map.map_to_local(cell)
 			start_cell_highlight.color = AREA_HIGHLIGHT_COLOR
+			start_area_highlights.add_child(start_cell_highlight)
+
+	var hex_polygon_enemy := _build_hex_polygon()
+	for x in range(ENEMY_AREA_MIN_X, ENEMY_AREA_MAX_X + 1):
+		for y in range(ENEMY_AREA_MIN_Y, ENEMY_AREA_MAX_Y + 1):
+			var cell := Vector2i(x, y)
+			if hex_map.get_cell_source_id(cell) == -1:
+				continue
+
+			var start_cell_highlight := Polygon2D.new()
+			start_cell_highlight.polygon = hex_polygon
+			start_cell_highlight.position = hex_map.map_to_local(cell)
+			start_cell_highlight.color = ENEMY_AREA_HIGHLIGHT_COLOR
 			start_area_highlights.add_child(start_cell_highlight)
 
 func _set_start_area_highlight_visible(is_visible: bool) -> void:
