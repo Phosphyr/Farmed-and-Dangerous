@@ -1,5 +1,6 @@
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 [gd_scene format=3 uid="uid://rnvog0djp5y5"]
 
 [ext_resource type="Script" uid="uid://571wl5nkh3q" path="res://player.gd" id="1_2hs0m"]
@@ -11,6 +12,8 @@
 =======
 =======
 >>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
 [gd_scene format=3 uid="uid://b0gihdny8c1ds"]
 
 [ext_resource type="Script" path="res://player.gd" id="1_2hs0m"]
@@ -20,6 +23,9 @@
 [ext_resource type="Script" path="res://player/idle_state.gd" id="4_sweqy"]
 [ext_resource type="Script" path="res://player/walk_state.gd" id="5_sweqy"]
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
@@ -417,7 +423,11 @@ position = Vector2(0, -26)
 sprite_frames = SubResource("SpriteFrames_efrwb")
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 animation = &"walk_right"
+=======
+animation = &"idle_down"
+>>>>>>> Stashed changes
 =======
 animation = &"idle_down"
 >>>>>>> Stashed changes
