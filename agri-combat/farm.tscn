@@ -14,11 +14,10 @@
 [ext_resource type="Texture2D" uid="uid://b5kgmbysaw07y" path="res://Assets/stardew_farm_assets/environment/grass/grass.png" id="13_fkxlg"]
 [ext_resource type="Texture2D" uid="uid://bh1tsmcq0cb65" path="res://Assets/basic_tileset_and_assets_standard_v3.0/tiles/tiles-fence-32x32.png" id="14_1brwc"]
 [ext_resource type="Texture2D" uid="uid://c4jw51gb2nh7b" path="res://Assets/stardew_farm_assets/environment/grass/left.png" id="14_ybobw"]
-
-[ext_resource type="PackedScene" uid="uid://rnvog0djp5y5" path="res://player.tscn" id="15_l5565"]
-
+[ext_resource type="PackedScene" uid="uid://cfp74vut0xaon" path="res://player.tscn" id="15_l5565"]
 [ext_resource type="Texture2D" uid="uid://b057d50ogyvtl" path="res://Assets/basic_tileset_and_assets_standard_v3.0/tiles/tiles-grass-decoration-transparent-32x32.png" id="15_qwqt5"]
 [ext_resource type="Texture2D" uid="uid://imjq347ly8lb" path="res://Assets/basic_tileset_and_assets_standard_v3.0/sprites/assets-spritesheet-standard.png" id="17_qwqt5"]
+[ext_resource type="Texture2D" uid="uid://d4bmow6v0jbf" path="res://Assets/Plant Units/tulip_tilemap.png" id="18_fjlvg"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_006if"]
 texture = ExtResource("2_l5565")
@@ -539,6 +538,17 @@ texture_region_size = Vector2i(32, 32)
 [sub_resource type="TileSet" id="TileSet_d2ewx"]
 sources/0 = SubResource("TileSetAtlasSource_rxq37")
 
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_h2tmi"]
+texture = ExtResource("18_fjlvg")
+texture_region_size = Vector2i(32, 32)
+0:0/0 = 0
+0:1/0 = 0
+4:0/0 = 0
+4:1/0 = 0
+
+[sub_resource type="TileSet" id="TileSet_bq030"]
+sources/1 = SubResource("TileSetAtlasSource_h2tmi")
+
 [node name="Farm_TileMap" type="Node2D" unique_id=629520426]
 
 [node name="Grass" type="TileMapLayer" parent="." unique_id=881411428]
@@ -566,3 +576,7 @@ tile_set = SubResource("TileSet_h2tmi")
 
 [node name="Buildings" type="TileMapLayer" parent="." unique_id=1130434762]
 tile_set = SubResource("TileSet_d2ewx")
+
+[node name="Plant Units" type="TileMapLayer" parent="." unique_id=1667747730]
+tile_map_data = PackedByteArray("AAAaAA8AAQAAAAAAAAAcAA8AAQAAAAEAAAAeAA8AAQAEAAAAAAAgAA8AAQAEAAEAAAA=")
+tile_set = SubResource("TileSet_bq030")

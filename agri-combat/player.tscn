@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://cfp74vut0xaon"]
 
-[ext_resource type="Script" uid="uid://rod17micwkrx" path="res://player.gd" id="1_2hs0m"]
+[ext_resource type="Script" uid="uid://571wl5nkh3q" path="res://player.gd" id="1_2hs0m"]
 [ext_resource type="Texture2D" uid="uid://cwsqxkxwsydyw" path="res://Assets/stardew_farm_assets/character/character_idle.png" id="1_onrkg"]
 [ext_resource type="Texture2D" uid="uid://dgk0faeqvuh2v" path="res://Assets/stardew_farm_assets/character/character_walking.png" id="2_i3pqv"]
 [ext_resource type="Script" uid="uid://cubyufnoqw4t7" path="res://scripts/state_machine/node_state_machine.gd" id="3_hqtel"]
