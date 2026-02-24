@@ -11,17 +11,17 @@ extends Node2D
 
 #setting colors for tile highlighting. Works via overlaying a color on the hex.
 const VALID_HIGHLIGHT_COLOR := Color(0.25, 0.9, 0.35, 0.35)
-const INVALID_HIGHLIGHT_COLOR := Color(0.95, 0.2, 0.2, 0.35)
+const INVALID_HIGHLIGHT_COLOR := Color(0.733, 0.741, 0.161, 0.565)
 const AREA_HIGHLIGHT_COLOR := Color(0.177, 0.526, 0.784, 0.35)
-const ENEMY_AREA_HIGHLIGHT_COLOR := Color(0.733, 0.741, 0.161, 0.565)
+const ENEMY_AREA_HIGHLIGHT_COLOR := Color(0.95, 0.2, 0.2, 0.35)
 #areas for initial placement of player pieces are 17-19x, 13-20y
 const START_AREA_MIN_X := 17
 const START_AREA_MAX_X := 19
 const START_AREA_MIN_Y := 13
 const START_AREA_MAX_Y := 20
-
-const ENEMY_AREA_MIN_X := 31
-const ENEMY_AREA_MAX_X := 33
+#areas for initial placement of enemy pieces are 30-32x, 13-20y
+const ENEMY_AREA_MIN_X := 30
+const ENEMY_AREA_MAX_X := 32
 const ENEMY_AREA_MIN_Y := 13
 const ENEMY_AREA_MAX_Y := 20
 
@@ -35,8 +35,9 @@ var reachable_move_cells := {} # Dictionary[Vector2i, int]
 var selected_unit: Node2D
 var battle_started = false
 var turn_counter = 1
-
+var hex_polygon_cache: PackedVector2Array
 func _ready() -> void:
+	hex_polygon_cache = _build_hex_polygon()
 	_setup_seedbox_entry()
 	_setup_start_area_highlights()
 	_setup_placement_highlight()
@@ -81,8 +82,7 @@ func _input(event: InputEvent) -> void:
 			_update_placement_highlight()
 		#this is the logic that tells the game where the player has dropped the hex, runs the function to check if the placement is valid and if true, places the plant
 		if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and not event.pressed:
-			var mouse_world := get_global_mouse_position()
-			var cell := hex_map.local_to_map(hex_map.to_local(mouse_world))
+			var cell := _mouse_cell()
 			if _can_place(cell):
 				_place_plant(cell)
 			_end_seed_drag()
@@ -131,7 +131,7 @@ func _end_seed_drag() -> void:
 
 #checks if the cell is valid for placement, currently only checks if there is a terrain cell placed
 func _can_place(cell: Vector2i) -> bool:
-	if not _is_in_start_area(cell):
+	if not _has_terrain(cell):
 		return false
 	if hex_map.get_cell_source_id(cell) == -1:
 		return false
@@ -160,7 +160,7 @@ func _place_plant(cell: Vector2i) -> void:
 
 func _setup_placement_highlight() -> void:
 	placement_highlight = Polygon2D.new()
-	placement_highlight.polygon = _build_hex_polygon()
+	placement_highlight.polygon = hex_polygon_cache
 	placement_highlight.visible = false
 	placement_highlight.z_index = 100
 	hex_map.add_child(placement_highlight)
@@ -195,7 +195,7 @@ func show_movement(unit: Node2D) -> void:
 			visited_distance[neighbor] = current_distance + 1
 			frontier.append(neighbor)
 
-	var hex_polygon := _build_hex_polygon()
+	var hex_polygon := hex_polygon_cache
 	for cell in visited_distance.keys():
 		if cell == start_cell:
 			continue
@@ -249,43 +249,36 @@ func _get_neighbor_cells(cell: Vector2i) -> Array[Vector2i]:
 	return hex_map.get_surrounding_cells(cell)
 
 func _can_move_through_cell(cell: Vector2i, start_cell: Vector2i) -> bool:
-	if hex_map.get_cell_source_id(cell) == -1:
+	if not _has_terrain(cell):
 		return false
 	if cell != start_cell and occupied_cells.has(cell):
 		return false
 	return true
 
+func _mouse_cell() -> Vector2i:
+	var mouse_world := get_global_mouse_position()
+	return hex_map.local_to_map(hex_map.to_local(mouse_world))
+
+func _add_rect_area_highlights(parent: Node, min_x:int, max_x:int, min_y:int, max_y:int, color: Color) -> void:
+	var hex_polygon := _build_hex_polygon() # or cached (see next section)
+	for x in range(min_x, max_x + 1):
+		for y in range(min_y, max_y + 1):
+			var cell := Vector2i(x, y)
+			if hex_map.get_cell_source_id(cell) == -1:
+				continue
+			var p := Polygon2D.new()
+			p.polygon = hex_polygon
+			p.position = hex_map.map_to_local(cell)
+			p.color = color
+			parent.add_child(p)
 func _setup_start_area_highlights() -> void:
 	start_area_highlights = Node2D.new()
 	start_area_highlights.visible = false
 	start_area_highlights.z_index = 90
 	hex_map.add_child(start_area_highlights)
 
-	var hex_polygon := _build_hex_polygon()
-	for x in range(START_AREA_MIN_X, START_AREA_MAX_X + 1):
-		for y in range(START_AREA_MIN_Y, START_AREA_MAX_Y + 1):
-			var cell := Vector2i(x, y)
-			if hex_map.get_cell_source_id(cell) == -1:
-				continue
-
-			var start_cell_highlight := Polygon2D.new()
-			start_cell_highlight.polygon = hex_polygon
-			start_cell_highlight.position = hex_map.map_to_local(cell)
-			start_cell_highlight.color = AREA_HIGHLIGHT_COLOR
-			start_area_highlights.add_child(start_cell_highlight)
-
-	var hex_polygon_enemy := _build_hex_polygon()
-	for x in range(ENEMY_AREA_MIN_X, ENEMY_AREA_MAX_X + 1):
-		for y in range(ENEMY_AREA_MIN_Y, ENEMY_AREA_MAX_Y + 1):
-			var cell := Vector2i(x, y)
-			if hex_map.get_cell_source_id(cell) == -1:
-				continue
-
-			var start_cell_highlight := Polygon2D.new()
-			start_cell_highlight.polygon = hex_polygon
-			start_cell_highlight.position = hex_map.map_to_local(cell)
-			start_cell_highlight.color = ENEMY_AREA_HIGHLIGHT_COLOR
-			start_area_highlights.add_child(start_cell_highlight)
+	_add_rect_area_highlights(start_area_highlights, START_AREA_MIN_X, START_AREA_MAX_X, START_AREA_MIN_Y, START_AREA_MAX_Y, AREA_HIGHLIGHT_COLOR)
+	_add_rect_area_highlights(start_area_highlights, ENEMY_AREA_MIN_X, ENEMY_AREA_MAX_X, ENEMY_AREA_MIN_Y, ENEMY_AREA_MAX_Y, ENEMY_AREA_HIGHLIGHT_COLOR)
 
 func _set_start_area_highlight_visible(is_visible: bool) -> void:
 	if is_instance_valid(start_area_highlights):
@@ -319,8 +312,7 @@ func _update_placement_highlight() -> void:
 	if not is_instance_valid(placement_highlight):
 		return
 
-	var mouse_world := get_global_mouse_position()
-	var cell := hex_map.local_to_map(hex_map.to_local(mouse_world))
+	var cell := _mouse_cell()
 	var can_place := _can_place(cell)
 
 	placement_highlight.visible = true
@@ -350,3 +342,5 @@ func _on_endturn_button_pressed() -> void:
 			unit.call("begin_turn")
 	turn_counter += 1
 	$UI/turn_counter/turncounter.text = "Turn " + str(turn_counter)
+func _has_terrain(cell: Vector2i) -> bool:
+	return hex_map.get_cell_source_id(cell) != -1
