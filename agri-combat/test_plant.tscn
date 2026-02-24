@@ -1,17 +1,15 @@
 [gd_scene format=3 uid="uid://c5th2nhmmi0s8"]
 
-[ext_resource type="Texture2D" uid="uid://dkeh7d22pa17u" path="res://Assets/SnoopethDuckDuck Crops/1px All.png" id="1_igjqg"]
 [ext_resource type="Script" uid="uid://dqqp3b8e0uqhd" path="res://test_plant.gd" id="1_kssrb"]
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_kssrb"]
-atlas = ExtResource("1_igjqg")
-region = Rect2(6, 6, 17, 16)
+[ext_resource type="Texture2D" uid="uid://2xovhe2ffk8q" path="res://Assets/Plant Units/tulip_tilemap.png" id="2_kssrb"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_2vsmu"]
-atlas = SubResource("AtlasTexture_kssrb")
+atlas = ExtResource("2_kssrb")
+region = Rect2(2, 1, 30, 31)
 
 [node name="TestPlant" type="Node2D" unique_id=2146189071]
 script = ExtResource("1_kssrb")
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=162691501]
+scale = Vector2(0.5, 0.5)
 texture = SubResource("AtlasTexture_2vsmu")

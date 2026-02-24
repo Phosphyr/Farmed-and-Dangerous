@@ -1,0 +1,15 @@
+[gd_scene format=3 uid="uid://d07gavibv7an7"]
+
+[ext_resource type="Script" uid="uid://dqqp3b8e0uqhd" path="res://test_plant.gd" id="1_nxx0r"]
+[ext_resource type="Texture2D" uid="uid://2xovhe2ffk8q" path="res://Assets/Plant Units/tulip_tilemap.png" id="2_nxx0r"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2vsmu"]
+atlas = ExtResource("2_nxx0r")
+region = Rect2(129, 1, 30, 31)
+
+[node name="TestPlant" type="Node2D" unique_id=2146189071]
+script = ExtResource("1_nxx0r")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=162691501]
+scale = Vector2(0.7, 0.7)
+texture = SubResource("AtlasTexture_2vsmu")
