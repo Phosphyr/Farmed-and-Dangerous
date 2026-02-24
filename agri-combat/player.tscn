@@ -1,22 +1,11 @@
+[gd_scene format=3 uid="uid://cfp74vut0xaon"]
 
-[gd_scene format=3 uid="uid://rnvog0djp5y5"]
-
-[ext_resource type="Script" uid="uid://571wl5nkh3q" path="res://player.gd" id="1_2hs0m"]
+[ext_resource type="Script" uid="uid://rod17micwkrx" path="res://player.gd" id="1_2hs0m"]
 [ext_resource type="Texture2D" uid="uid://cwsqxkxwsydyw" path="res://Assets/stardew_farm_assets/character/character_idle.png" id="1_onrkg"]
 [ext_resource type="Texture2D" uid="uid://dgk0faeqvuh2v" path="res://Assets/stardew_farm_assets/character/character_walking.png" id="2_i3pqv"]
 [ext_resource type="Script" uid="uid://cubyufnoqw4t7" path="res://scripts/state_machine/node_state_machine.gd" id="3_hqtel"]
 [ext_resource type="Script" uid="uid://clhpv0bymhvp6" path="res://player/idle_state.gd" id="4_sweqy"]
 [ext_resource type="Script" uid="uid://cpdp8w33ldfb" path="res://player/walk_state.gd" id="5_sweqy"]
-
-[gd_scene format=3 uid="uid://b0gihdny8c1ds"]
-
-[ext_resource type="Script" path="res://player.gd" id="1_2hs0m"]
-[ext_resource type="Texture2D" path="res://Assets/stardew_farm_assets/character/character_idle.png" id="1_onrkg"]
-[ext_resource type="Texture2D" path="res://Assets/stardew_farm_assets/character/character_walking.png" id="2_i3pqv"]
-[ext_resource type="Script" path="res://scripts/state_machine/node_state_machine.gd" id="3_hqtel"]
-[ext_resource type="Script" path="res://player/idle_state.gd" id="4_sweqy"]
-[ext_resource type="Script" path="res://player/walk_state.gd" id="5_sweqy"]
-
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_bfour"]
 atlas = ExtResource("1_onrkg")
@@ -409,23 +398,7 @@ script = ExtResource("1_2hs0m")
 y_sort_enabled = true
 position = Vector2(0, -26)
 sprite_frames = SubResource("SpriteFrames_efrwb")
-
 animation = &"walk_right"
-
-animation = &"idle_down"
-
-
-animation = &"idle_down"
-
-
-animation = &"idle_down"
-
-
-animation = &"idle_down"
-
-
-animation = &"idle_down"
-
 autoplay = "idle_down"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1161577382]

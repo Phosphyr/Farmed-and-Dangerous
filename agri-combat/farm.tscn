@@ -14,7 +14,7 @@
 [ext_resource type="Texture2D" uid="uid://b5kgmbysaw07y" path="res://Assets/stardew_farm_assets/environment/grass/grass.png" id="13_fkxlg"]
 [ext_resource type="Texture2D" uid="uid://bh1tsmcq0cb65" path="res://Assets/basic_tileset_and_assets_standard_v3.0/tiles/tiles-fence-32x32.png" id="14_1brwc"]
 [ext_resource type="Texture2D" uid="uid://c4jw51gb2nh7b" path="res://Assets/stardew_farm_assets/environment/grass/left.png" id="14_ybobw"]
-[ext_resource type="PackedScene" uid="uid://rnvog0djp5y5" path="res://player.tscn" id="15_l5565"]
+[ext_resource type="PackedScene" uid="uid://cfp74vut0xaon" path="res://player.tscn" id="15_l5565"]
 [ext_resource type="Texture2D" uid="uid://b057d50ogyvtl" path="res://Assets/basic_tileset_and_assets_standard_v3.0/tiles/tiles-grass-decoration-transparent-32x32.png" id="15_qwqt5"]
 [ext_resource type="Texture2D" uid="uid://imjq347ly8lb" path="res://Assets/basic_tileset_and_assets_standard_v3.0/sprites/assets-spritesheet-standard.png" id="17_qwqt5"]
 
